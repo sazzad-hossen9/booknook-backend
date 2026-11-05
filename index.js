@@ -31,9 +31,18 @@ await borrowsCollection.createIndex(
 
 const isValidId = (id) => ObjectId.isValid(id);
 
-
 app.get("/", (req, res) => {
   res.send({ message: "BookNook server is running" });
+});
+
+app.get("/books", async (req, res) => {
+  try {
+    const books = await booksCollection.find().toArray();
+
+    res.send(books);
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong" });
+  }
 });
 
 app.listen(PORT, () => {
