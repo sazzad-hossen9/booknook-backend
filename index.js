@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
+//Connect MongoDB database
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function connectDB() {
@@ -20,6 +20,16 @@ async function connectDB() {
 }
 
 const db = await connectDB();
+
+const booksCollection = db.collection("books");
+const borrowsCollection = db.collection("borrows");
+
+await borrowsCollection.createIndex(
+  { bookId: 1, userEmail: 1 },
+  { unique: true },
+);
+
+const isValidId = (id) => ObjectId.isValid(id);
 
 
 app.get("/", (req, res) => {
