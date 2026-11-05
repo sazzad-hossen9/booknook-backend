@@ -36,8 +36,45 @@ app.get("/", (req, res) => {
 });
 
 app.get("/books", async (req, res) => {
+//books
+//books?search=dune
+//books?category=Fiction
+//books?sort=newest&limit=6
+//books?email=rahim@gmail.com
+
   try {
-    const books = await booksCollection.find().toArray();
+    const { email, category, search, sort, limit } = req.query;
+
+    const filter = {};
+
+    if (email) {
+      filter.userEmail = email;
+    }
+
+    if (category && category !== "All") {
+      filter.category = category;
+    }
+
+    if (search) {
+      const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      filter.title = {
+        $regex: safeSearch,
+        $options: "i",
+      };
+    }
+
+    let result = booksCollection.find(filter);
+
+    if (sort === "newest") {
+      result = result.sort({ addedDate: -1 });
+    }
+
+    if (limit) {
+      result = result.limit(Number(limit));
+    }
+
+    const books = await result.toArray();
 
     res.send(books);
   } catch (error) {
