@@ -36,11 +36,11 @@ app.get("/", (req, res) => {
 });
 
 app.get("/books", async (req, res) => {
-//books
-//books?search=dune
-//books?category=Fiction
-//books?sort=newest&limit=6
-//books?email=rahim@gmail.com
+  //books
+  //books?search=dune
+  //books?category=Fiction
+  //books?sort=newest&limit=6
+  //books?email=rahim@gmail.com
 
   try {
     const { email, category, search, sort, limit } = req.query;
@@ -82,6 +82,23 @@ app.get("/books", async (req, res) => {
   }
 });
 
+app.get("/books/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!isValidId(id)) {
+    return res.status(400).send({ message: "Invalid book ID" });
+  }
+
+  const book = await booksCollection.findOne({
+    _id: new ObjectId(id),
+  });
+
+  if (!book) {
+    return res.status(404).send({ message: "Book not found" });
+  }
+
+  res.send(book);
+});
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
